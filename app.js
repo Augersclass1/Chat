@@ -1,25 +1,20 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const SUPABASE_URL =
-  'https://dugkbpmmsderqjxbhmxq.supabase.co';
-
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Z2ticG1tc2RlcnFqeGJobXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjU5NjYsImV4cCI6MjA5NDcwMTk2Nn0.HRD2ZvKVm-cIbkokn2eYZnUF-zHGI5AfJ0BokZOec1A';
+const SUPABASE_URL = 'https://dugkbpmmsderqjxbhmxq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Z2ticG1tc2RlcnFqeGJobXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjU5NjYsImV4cCI6MjA5NDcwMTk2Nn0.HRD2ZvKVm-cIbkokn2eYZnUF-zHGI5AfJ0BokZOec1A';
 
 const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
-/* ELEMENTS */
-
-const emailInput =
+const email =
   document.getElementById('email');
 
-const passwordInput =
+const password =
   document.getElementById('password');
 
-const usernameInput =
+const username =
   document.getElementById('username');
 
 const signupBtn =
@@ -28,160 +23,81 @@ const signupBtn =
 const loginBtn =
   document.getElementById('loginBtn');
 
-const logoutBtn =
-  document.getElementById('logoutBtn');
-
-const statusText =
-  document.getElementById('statusText');
+const sendBtn =
+  document.getElementById('sendBtn');
 
 const messageInput =
   document.getElementById('messageInput');
 
-const sendBtn =
-  document.getElementById('sendBtn');
-
-const messagesDiv =
+const messages =
   document.getElementById('messages');
 
-/* USER STATE */
+const status =
+  document.getElementById('status');
 
 let currentUser = null;
 
-/* SIGN UP */
+/* SIGNUP */
 
-signupBtn.addEventListener(
-  'click',
-  async () => {
+signupBtn.onclick = async () => {
 
-    const email =
-      emailInput.value.trim();
+  const result =
+    await supabase.auth.signUp({
 
-    const password =
-      passwordInput.value.trim();
+      email: email.value,
 
-    const username =
-      usernameInput.value.trim();
+      password: password.value,
 
-    if (!email ||
-        !password ||
-        !username) {
-
-      alert('Fill all fields');
-      return;
-    }
-
-    const { data, error } =
-      await supabase.auth.signUp({
-
-        email,
-        password,
-
-        options: {
-          data: {
-            username
-          }
+      options: {
+        data: {
+          username: username.value
         }
-      });
+      }
+    });
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+  console.log(result);
 
-    alert('Account created');
-  }
-);
-
-/* LOGIN */
-
-loginBtn.addEventListener(
-  'click',
-  async () => {
-
-    const email =
-      emailInput.value.trim();
-
-    const password =
-      passwordInput.value.trim();
-
-    const { data, error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    currentUser = data.user;
-
-    statusText.textContent =
-      `Logged in as ${
-        currentUser.user_metadata.username
-      }`;
-
-    loadMessages();
-    subscribeToMessages();
-  }
-);
-
-/* LOGOUT */
-
-logoutBtn.addEventListener(
-  'click',
-  async () => {
-
-    await supabase.auth.signOut();
-
-    currentUser = null;
-
-    statusText.textContent =
-      'Logged out';
-  }
-);
-
-/* LOAD MESSAGES */
-
-async function loadMessages() {
-
-  const { data, error } =
-    await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', {
-        ascending: true
-      });
-
-  if (error) {
-    console.error(error);
+  if (result.error) {
+    alert(result.error.message);
     return;
   }
 
-  messagesDiv.innerHTML = '';
+  alert('Signup successful');
+};
 
-  data.forEach(addMessageToUI);
-}
+/* LOGIN */
 
-/* SEND */
+loginBtn.onclick = async () => {
 
-sendBtn.addEventListener(
-  'click',
-  sendMessage
-);
+  const result =
+    await supabase.auth.signInWithPassword({
 
-messageInput.addEventListener(
-  'keydown',
-  (e) => {
+      email: email.value,
 
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
+      password: password.value
+    });
+
+  console.log(result);
+
+  if (result.error) {
+    alert(result.error.message);
+    return;
   }
-);
 
-async function sendMessage() {
+  currentUser = result.data.user;
+
+  status.innerText =
+    'Logged in as ' +
+    currentUser.user_metadata.username;
+
+  loadMessages();
+
+  subscribe();
+};
+
+/* SEND MESSAGE */
+
+sendBtn.onclick = async () => {
 
   if (!currentUser) {
     alert('Login first');
@@ -193,70 +109,47 @@ async function sendMessage() {
 
   if (!text) return;
 
-  const username =
-    currentUser.user_metadata.username;
-
-  const { error } =
+  const result =
     await supabase
       .from('messages')
       .insert([{
 
         user_id: currentUser.id,
 
-        username,
+        username:
+          currentUser.user_metadata.username,
 
         text
       }]);
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+  console.log(result);
 
   messageInput.value = '';
-}
+};
 
-/* UI */
+/* LOAD */
 
-function addMessageToUI(message) {
+async function loadMessages() {
 
-  const div =
-    document.createElement('div');
+  const result =
+    await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at');
 
-  const isSelf =
-    currentUser &&
-    message.user_id === currentUser.id;
+  console.log(result);
 
-  div.classList.add(
-    'message'
-  );
+  messages.innerHTML = '';
 
-  div.classList.add(
-    isSelf ? 'self' : 'other'
-  );
-
-  div.innerHTML = `
-    <div class="username">
-      ${escapeHtml(message.username)}
-    </div>
-
-    <div class="message-text">
-      ${escapeHtml(message.text)}
-    </div>
-  `;
-
-  messagesDiv.appendChild(div);
-
-  messagesDiv.scrollTop =
-    messagesDiv.scrollHeight;
+  result.data.forEach(addMessage);
 }
 
 /* REALTIME */
 
-function subscribeToMessages() {
+function subscribe() {
 
   supabase
-    .channel('chat-room')
+    .channel('room')
 
     .on(
       'postgres_changes',
@@ -268,35 +161,34 @@ function subscribeToMessages() {
       },
 
       (payload) => {
-        addMessageToUI(payload.new);
+
+        addMessage(payload.new);
       }
     )
 
     .subscribe();
 }
 
-/* SESSION */
+/* UI */
 
-async function restoreSession() {
+function addMessage(msg) {
 
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
+  const div =
+    document.createElement('div');
 
-  if (!session) return;
+  div.className = 'message';
 
-  currentUser = session.user;
+  div.innerHTML =
+    '<b>' +
+    escapeHtml(msg.username) +
+    '</b><br>' +
+    escapeHtml(msg.text);
 
-  statusText.textContent =
-    `Logged in as ${
-      currentUser.user_metadata.username
-    }`;
+  messages.appendChild(div);
 
-  loadMessages();
-  subscribeToMessages();
+  messages.scrollTop =
+    messages.scrollHeight;
 }
-
-restoreSession();
 
 /* SECURITY */
 
@@ -305,7 +197,5 @@ function escapeHtml(str) {
   return str
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+    .replaceAll('>', '&gt;');
 }
