@@ -19,9 +19,10 @@ body {
 /* SIDEBAR */
 
 .sidebar {
-  width: 300px;
+  width: 320px;
   background: #111827;
   border-right: 1px solid #1f2937;
+
   padding: 20px;
 
   display: flex;
@@ -33,38 +34,43 @@ body {
   font-size: 28px;
 }
 
-.user-box {
+#status {
+  background: #1f2937;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+/* AUTH */
+
+.auth {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.user-box input {
+.auth input {
   padding: 12px;
   border: none;
   border-radius: 10px;
+
   background: #1f2937;
   color: white;
 }
 
-.user-box button {
+.auth button {
   padding: 12px;
   border: none;
   border-radius: 10px;
+
   background: #2563eb;
   color: white;
+
   cursor: pointer;
   font-weight: bold;
 }
 
-.user-box button:hover {
+.auth button:hover {
   opacity: 0.9;
-}
-
-.status {
-  background: #1f2937;
-  padding: 12px;
-  border-radius: 10px;
 }
 
 /* CHAT */
@@ -80,35 +86,46 @@ body {
 
 .chat-header {
   padding: 20px;
-  border-bottom: 1px solid #1f2937;
+
   background: #111827;
+
+  border-bottom: 1px solid #1f2937;
+
+  font-size: 22px;
+  font-weight: bold;
 }
 
 .messages {
   flex: 1;
+
   overflow-y: auto;
+
   padding: 20px;
 
   display: flex;
   flex-direction: column;
+
   gap: 12px;
 }
 
-/* MESSAGE BUBBLES */
+/* MESSAGES */
 
 .message {
   max-width: 70%;
+
   padding: 12px;
+
   border-radius: 14px;
+
   word-wrap: break-word;
 }
 
-.message.self {
+.self {
   align-self: flex-end;
   background: #2563eb;
 }
 
-.message.other {
+.other {
   align-self: flex-start;
   background: #1f2937;
 }
@@ -116,28 +133,31 @@ body {
 .username {
   font-size: 12px;
   opacity: 0.7;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .message-text {
   font-size: 16px;
 }
 
-/* INPUT */
+/* BOTTOM */
 
-.message-input-container {
+.bottom {
   display: flex;
   gap: 10px;
 
   padding: 20px;
-  border-top: 1px solid #1f2937;
+
   background: #111827;
+
+  border-top: 1px solid #1f2937;
 }
 
-.message-input-container input {
+.bottom input {
   flex: 1;
 
   padding: 14px;
+
   border: none;
   border-radius: 12px;
 
@@ -145,8 +165,9 @@ body {
   color: white;
 }
 
-.message-input-container button {
+.bottom button {
   padding: 14px 22px;
+
   border: none;
   border-radius: 12px;
 
@@ -157,6 +178,6 @@ body {
   font-weight: bold;
 }
 
-.message-input-container button:hover {
+.bottom button:hover {
   opacity: 0.9;
 }
