@@ -1,12 +1,17 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const SUPABASE_URL = 'https://dugkbpmmsderqjxbhmxq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Z2ticG1tc2RlcnFqeGJobXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjU5NjYsImV4cCI6MjA5NDcwMTk2Nn0.HRD2ZvKVm-cIbkokn2eYZnUF-zHGI5AfJ0BokZOec1A';
+const SUPABASE_URL =
+  'https://dugkbpmmsderqjxbhmxq.supabase.co';
+
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Z2ticG1tc2RlcnFqeGJobXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjU5NjYsImV4cCI6MjA5NDcwMTk2Nn0.HRD2ZvKVm-cIbkokn2eYZnUF-zHGI5AfJ0BokZOec1A';
 
 const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
+
+/* ELEMENTS */
 
 const email =
   document.getElementById('email');
@@ -23,6 +28,9 @@ const signupBtn =
 const loginBtn =
   document.getElementById('loginBtn');
 
+const logoutBtn =
+  document.getElementById('logoutBtn');
+
 const sendBtn =
   document.getElementById('sendBtn');
 
@@ -34,6 +42,8 @@ const messages =
 
 const status =
   document.getElementById('status');
+
+/* USER */
 
 let currentUser = null;
 
@@ -95,9 +105,33 @@ loginBtn.onclick = async () => {
   subscribe();
 };
 
-/* SEND MESSAGE */
+/* LOGOUT */
 
-sendBtn.onclick = async () => {
+logoutBtn.onclick = async () => {
+
+  await supabase.auth.signOut();
+
+  currentUser = null;
+
+  status.innerText =
+    'Logged out';
+};
+
+/* SEND */
+
+sendBtn.onclick = sendMessage;
+
+messageInput.addEventListener(
+  'keydown',
+  (e) => {
+
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  }
+);
+
+async function sendMessage() {
 
   if (!currentUser) {
     alert('Login first');
@@ -125,7 +159,7 @@ sendBtn.onclick = async () => {
   console.log(result);
 
   messageInput.value = '';
-};
+}
 
 /* LOAD */
 
@@ -136,8 +170,6 @@ async function loadMessages() {
       .from('messages')
       .select('*')
       .order('created_at');
-
-  console.log(result);
 
   messages.innerHTML = '';
 
@@ -169,26 +201,61 @@ function subscribe() {
     .subscribe();
 }
 
-/* UI */
+/* MESSAGE UI */
 
 function addMessage(msg) {
 
   const div =
     document.createElement('div');
 
-  div.className = 'message';
+  const isSelf =
+    currentUser &&
+    msg.user_id === currentUser.id;
 
-  div.innerHTML =
-    '<b>' +
-    escapeHtml(msg.username) +
-    '</b><br>' +
-    escapeHtml(msg.text);
+  div.classList.add('message');
+
+  div.classList.add(
+    isSelf ? 'self' : 'other'
+  );
+
+  div.innerHTML = `
+    <div class="username">
+      ${escapeHtml(msg.username)}
+    </div>
+
+    <div class="message-text">
+      ${escapeHtml(msg.text)}
+    </div>
+  `;
 
   messages.appendChild(div);
 
   messages.scrollTop =
     messages.scrollHeight;
 }
+
+/* RESTORE SESSION */
+
+async function restoreSession() {
+
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session) return;
+
+  currentUser = session.user;
+
+  status.innerText =
+    'Logged in as ' +
+    currentUser.user_metadata.username;
+
+  loadMessages();
+
+  subscribe();
+}
+
+restoreSession();
 
 /* SECURITY */
 
@@ -197,5 +264,7 @@ function escapeHtml(str) {
   return str
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
