@@ -2,92 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supabase Chat</title>
 
-  <title>Realtime Chat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+    }
 
-  <link rel="stylesheet" href="style.css">
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .auth {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #messages {
+      height: 500px;
+      overflow-y: auto;
+      background: #111827;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .message {
+      background: #1f2937;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .bottom {
+      display: flex;
+      gap: 10px;
+    }
+
+    #status {
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app">
+<div class="container">
 
-  <div class="sidebar">
+  <h1>Realtime Chat</h1>
 
-    <h1>Chat App</h1>
+  <div id="status">
+    Not logged in
+  </div>
 
-    <div class="auth-box">
+  <div class="auth">
 
-      <input
-        type="email"
-        id="email"
-        placeholder="Email"
-      />
+    <input
+      id="email"
+      type="email"
+      placeholder="Email"
+    />
 
-      <input
-        type="password"
-        id="password"
-        placeholder="Password"
-      />
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+    />
 
-      <input
-        type="text"
-        id="username"
-        placeholder="Username"
-      />
+    <input
+      id="username"
+      type="text"
+      placeholder="Username"
+    />
 
-      <button id="signupBtn">
-        Sign Up
-      </button>
+    <button id="signupBtn">
+      Sign Up
+    </button>
 
-      <button id="loginBtn">
-        Login
-      </button>
-
-      <button id="logoutBtn">
-        Logout
-      </button>
-
-    </div>
-
-    <div class="status">
-      <span id="statusText">
-        Not logged in
-      </span>
-    </div>
+    <button id="loginBtn">
+      Login
+    </button>
 
   </div>
 
-  <div class="chat-container">
+  <div id="messages"></div>
 
-    <div class="chat-header">
-      Global Chat
-    </div>
+  <div class="bottom">
 
-    <div id="messages"
-         class="messages"></div>
+    <input
+      id="messageInput"
+      type="text"
+      placeholder="Message..."
+      style="flex:1;"
+    />
 
-    <div class="message-input-container">
-
-      <input
-        type="text"
-        id="messageInput"
-        placeholder="Message..."
-      />
-
-      <button id="sendBtn">
-        Send
-      </button>
-
-    </div>
+    <button id="sendBtn">
+      Send
+    </button>
 
   </div>
 
 </div>
 
-<script type="module"
-        src="app.js"></script>
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
