@@ -1,23 +1,39 @@
 import { createClient }
 from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// PUT YOUR INFO HERE
-const SUPABASE_URL = 'https://dugkbpmmsderqjxbhmxq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Z2ticG1tc2RlcnFqeGJobXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjU5NjYsImV4cCI6MjA5NDcwMTk2Nn0.HRD2ZvKVm-cIbkokn2eYZnUF-zHGI5AfJ0BokZOec1A';
+const SUPABASE_URL =
+  'YOUR_SUPABASE_URL';
+
+const SUPABASE_ANON_KEY =
+  'YOUR_SUPABASE_ANON_KEY';
 
 const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
+/* ELEMENTS */
+
+const emailInput =
+  document.getElementById('email');
+
+const passwordInput =
+  document.getElementById('password');
+
 const usernameInput =
   document.getElementById('username');
 
-const joinBtn =
-  document.getElementById('joinBtn');
+const signupBtn =
+  document.getElementById('signupBtn');
 
-const messagesDiv =
-  document.getElementById('messages');
+const loginBtn =
+  document.getElementById('loginBtn');
+
+const logoutBtn =
+  document.getElementById('logoutBtn');
+
+const statusText =
+  document.getElementById('statusText');
 
 const messageInput =
   document.getElementById('messageInput');
@@ -25,43 +41,119 @@ const messageInput =
 const sendBtn =
   document.getElementById('sendBtn');
 
-const statusText =
-  document.getElementById('statusText');
+const messagesDiv =
+  document.getElementById('messages');
 
-let username = '';
-let joined = false;
+/* USER STATE */
 
-/* JOIN CHAT */
+let currentUser = null;
 
-joinBtn.addEventListener('click', () => {
+/* SIGN UP */
 
-  const value = usernameInput.value.trim();
+signupBtn.addEventListener(
+  'click',
+  async () => {
 
-  if (!value) {
-    alert('Enter a username');
-    return;
+    const email =
+      emailInput.value.trim();
+
+    const password =
+      passwordInput.value.trim();
+
+    const username =
+      usernameInput.value.trim();
+
+    if (!email ||
+        !password ||
+        !username) {
+
+      alert('Fill all fields');
+      return;
+    }
+
+    const { data, error } =
+      await supabase.auth.signUp({
+
+        email,
+        password,
+
+        options: {
+          data: {
+            username
+          }
+        }
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert('Account created');
   }
+);
 
-  username = value;
-  joined = true;
+/* LOGIN */
 
-  statusText.textContent =
-    `Connected as ${username}`;
+loginBtn.addEventListener(
+  'click',
+  async () => {
 
-  loadMessages();
-  subscribeToMessages();
-});
+    const email =
+      emailInput.value.trim();
 
-/* LOAD OLD MESSAGES */
+    const password =
+      passwordInput.value.trim();
+
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    currentUser = data.user;
+
+    statusText.textContent =
+      `Logged in as ${
+        currentUser.user_metadata.username
+      }`;
+
+    loadMessages();
+    subscribeToMessages();
+  }
+);
+
+/* LOGOUT */
+
+logoutBtn.addEventListener(
+  'click',
+  async () => {
+
+    await supabase.auth.signOut();
+
+    currentUser = null;
+
+    statusText.textContent =
+      'Logged out';
+  }
+);
+
+/* LOAD MESSAGES */
 
 async function loadMessages() {
 
-  const { data, error } = await supabase
-    .from('messages')
-    .select('*')
-    .order('created_at', {
-      ascending: true
-    });
+  const { data, error } =
+    await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', {
+        ascending: true
+      });
 
   if (error) {
     console.error(error);
@@ -73,7 +165,7 @@ async function loadMessages() {
   data.forEach(addMessageToUI);
 }
 
-/* SEND MESSAGE */
+/* SEND */
 
 sendBtn.addEventListener(
   'click',
@@ -83,6 +175,7 @@ sendBtn.addEventListener(
 messageInput.addEventListener(
   'keydown',
   (e) => {
+
     if (e.key === 'Enter') {
       sendMessage();
     }
@@ -91,8 +184,8 @@ messageInput.addEventListener(
 
 async function sendMessage() {
 
-  if (!joined) {
-    alert('Join first');
+  if (!currentUser) {
+    alert('Login first');
     return;
   }
 
@@ -101,14 +194,20 @@ async function sendMessage() {
 
   if (!text) return;
 
-  const { error } = await supabase
-    .from('messages')
-    .insert([
-      {
+  const username =
+    currentUser.user_metadata.username;
+
+  const { error } =
+    await supabase
+      .from('messages')
+      .insert([{
+
+        user_id: currentUser.id,
+
         username,
+
         text
-      }
-    ]);
+      }]);
 
   if (error) {
     console.error(error);
@@ -118,7 +217,7 @@ async function sendMessage() {
   messageInput.value = '';
 }
 
-/* ADD MESSAGE */
+/* UI */
 
 function addMessageToUI(message) {
 
@@ -126,9 +225,12 @@ function addMessageToUI(message) {
     document.createElement('div');
 
   const isSelf =
-    message.username === username;
+    currentUser &&
+    message.user_id === currentUser.id;
 
-  div.classList.add('message');
+  div.classList.add(
+    'message'
+  );
 
   div.classList.add(
     isSelf ? 'self' : 'other'
@@ -159,6 +261,7 @@ function subscribeToMessages() {
 
     .on(
       'postgres_changes',
+
       {
         event: 'INSERT',
         schema: 'public',
@@ -172,6 +275,29 @@ function subscribeToMessages() {
 
     .subscribe();
 }
+
+/* SESSION */
+
+async function restoreSession() {
+
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session) return;
+
+  currentUser = session.user;
+
+  statusText.textContent =
+    `Logged in as ${
+      currentUser.user_metadata.username
+    }`;
+
+  loadMessages();
+  subscribeToMessages();
+}
+
+restoreSession();
 
 /* SECURITY */
 
