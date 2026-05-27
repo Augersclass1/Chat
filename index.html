@@ -2,64 +2,92 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0"/>
+
   <title>Realtime Chat</title>
 
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <div class="sidebar">
-      <h1>Chat Room</h1>
+  <div class="sidebar">
 
-      <div class="user-box">
-        <input
-          type="text"
-          id="username"
-          placeholder="Enter username"
-        />
+    <h1>Chat App</h1>
 
-        <button id="joinBtn">
-          Join Chat
-        </button>
-      </div>
+    <div class="auth-box">
 
-      <div class="status">
-        <span id="statusText">
-          Not connected
-        </span>
-      </div>
+      <input
+        type="email"
+        id="email"
+        placeholder="Email"
+      />
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+      />
+
+      <input
+        type="text"
+        id="username"
+        placeholder="Username"
+      />
+
+      <button id="signupBtn">
+        Sign Up
+      </button>
+
+      <button id="loginBtn">
+        Login
+      </button>
+
+      <button id="logoutBtn">
+        Logout
+      </button>
+
     </div>
 
-    <div class="chat-container">
+    <div class="status">
+      <span id="statusText">
+        Not logged in
+      </span>
+    </div>
 
-      <div class="chat-header">
-        <h2>Global Chat</h2>
-      </div>
+  </div>
 
-      <div id="messages" class="messages"></div>
+  <div class="chat-container">
 
-      <div class="message-input-container">
+    <div class="chat-header">
+      Global Chat
+    </div>
 
-        <input
-          type="text"
-          id="messageInput"
-          placeholder="Type a message..."
-        />
+    <div id="messages"
+         class="messages"></div>
 
-        <button id="sendBtn">
-          Send
-        </button>
+    <div class="message-input-container">
 
-      </div>
+      <input
+        type="text"
+        id="messageInput"
+        placeholder="Message..."
+      />
+
+      <button id="sendBtn">
+        Send
+      </button>
 
     </div>
 
   </div>
 
-  <script type="module" src="app.js"></script>
+</div>
+
+<script type="module"
+        src="app.js"></script>
 
 </body>
 </html>
