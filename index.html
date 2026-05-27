@@ -2,123 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Supabase Chat</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-    }
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
+  <title>Realtime Chat</title>
 
-    .auth {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    input {
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-    }
-
-    button {
-      padding: 12px 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #messages {
-      height: 500px;
-      overflow-y: auto;
-      background: #111827;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-
-    .message {
-      background: #1f2937;
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-
-    .bottom {
-      display: flex;
-      gap: 10px;
-    }
-
-    #status {
-      margin-bottom: 15px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="container">
+<div class="app">
 
-  <h1>Realtime Chat</h1>
+  <!-- SIDEBAR -->
 
-  <div id="status">
-    Not logged in
+  <div class="sidebar">
+
+    <h1>Chat App</h1>
+
+    <div id="status">
+      Not logged in
+    </div>
+
+    <div class="auth">
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+      />
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+      />
+
+      <input
+        id="username"
+        type="text"
+        placeholder="Username"
+      />
+
+      <button id="signupBtn">
+        Sign Up
+      </button>
+
+      <button id="loginBtn">
+        Login
+      </button>
+
+      <button id="logoutBtn">
+        Logout
+      </button>
+
+    </div>
+
   </div>
 
-  <div class="auth">
+  <!-- CHAT -->
 
-    <input
-      id="email"
-      type="email"
-      placeholder="Email"
-    />
+  <div class="chat-container">
 
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-    />
+    <div class="chat-header">
+      Global Chat
+    </div>
 
-    <input
-      id="username"
-      type="text"
-      placeholder="Username"
-    />
+    <div id="messages" class="messages"></div>
 
-    <button id="signupBtn">
-      Sign Up
-    </button>
+    <div class="bottom">
 
-    <button id="loginBtn">
-      Login
-    </button>
+      <input
+        id="messageInput"
+        type="text"
+        placeholder="Type a message..."
+      />
 
-  </div>
+      <button id="sendBtn">
+        Send
+      </button>
 
-  <div id="messages"></div>
-
-  <div class="bottom">
-
-    <input
-      id="messageInput"
-      type="text"
-      placeholder="Message..."
-      style="flex:1;"
-    />
-
-    <button id="sendBtn">
-      Send
-    </button>
+    </div>
 
   </div>
 
