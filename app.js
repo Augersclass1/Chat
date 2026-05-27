@@ -5,6 +5,15 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (currentUser) {
+      subscribe(); // reattach realtime
+      loadMessages(); // optional resync
+    }
+  }
+});
 /* ELEMENTS */
 
 const email = document.getElementById('email');
