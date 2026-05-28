@@ -1,6 +1,8 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8" />
 
   <meta
@@ -11,14 +13,16 @@
   <title>Realtime Chat</title>
 
   <link rel="stylesheet" href="style.css" />
+
 </head>
+
 <body>
 
 <div class="app">
 
   <!-- SIDEBAR -->
 
-  <div class="sidebar">
+  <aside class="sidebar">
 
     <h1>Chat App</h1>
 
@@ -60,17 +64,58 @@
 
     </div>
 
-  </div>
+  </aside>
 
   <!-- CHAT -->
 
-  <div class="chat-container">
+  <main class="chat-container">
 
     <div class="chat-header">
-      Global Chat
+      Multi Room Chat
     </div>
 
-    <div id="messages" class="messages"></div>
+    <!-- ROOMS -->
+
+    <div class="rooms">
+
+      <button
+        class="room-btn active"
+        data-room="global"
+      >
+        # Global
+      </button>
+
+      <button
+        class="room-btn"
+        data-room="gaming"
+      >
+        # Gaming
+      </button>
+
+      <button
+        class="room-btn"
+        data-room="music"
+      >
+        # Music
+      </button>
+
+      <button
+        class="room-btn"
+        data-room="coding"
+      >
+        # Coding
+      </button>
+
+    </div>
+
+    <!-- MESSAGES -->
+
+    <div
+      id="messages"
+      class="messages"
+    ></div>
+
+    <!-- INPUT -->
 
     <div class="bottom">
 
@@ -86,11 +131,15 @@
 
     </div>
 
-  </div>
+  </main>
 
 </div>
 
-<script type="module" src="app.js"></script>
+<script
+  type="module"
+  src="app.js"
+></script>
 
 </body>
 </html>
+```
