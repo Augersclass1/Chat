@@ -1,11 +1,12 @@
 
+
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL =
-  'https://dugkbpmmsderqjxbhmxq.supabase.co';
+  'YOUR_SUPABASE_URL';
 
 const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Z2ticG1tc2RlcnFqeGJobXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjU5NjYsImV4cCI6MjA5NDcwMTk2Nn0.HRD2ZvKVm-cIbkokn2eYZnUF-zHGI5AfJ0BokZOec1A';
+  'YOUR_SUPABASE_ANON_KEY';
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -44,43 +45,33 @@ const messages =
 const status =
   document.getElementById('status');
 
-const roomButtons =
-  document.querySelectorAll('.room-btn');
+const rooms =
+  document.getElementById('rooms');
+
+const roomInput =
+  document.getElementById('roomInput');
+
+const createRoomBtn =
+  document.getElementById('createRoomBtn');
+
+const chatHeader =
+  document.getElementById('chatHeader');
 
 /* STATE */
 
 let currentUser = null;
-let channel = null;
 
 let currentRoom = 'global';
+
+let channel = null;
 
 const renderedMessages =
   new Set();
 
-/* ROOM SWITCHING */
-
-roomButtons.forEach((btn) => {
-
-  btn.onclick = () => {
-
-    currentRoom =
-      btn.dataset.room;
-
-    roomButtons.forEach((b) => {
-      b.classList.remove('active');
-    });
-
-    btn.classList.add('active');
-
-    loadMessages();
-    subscribe();
-  };
-});
-
 /* AUTH */
 
 supabase.auth.onAuthStateChange(
-  (event, session) => {
+  async (event, session) => {
 
     if (session?.user) {
 
@@ -88,10 +79,18 @@ supabase.auth.onAuthStateChange(
 
       status.innerText =
         'Logged in as ' +
-        currentUser.user_metadata?.username;
+        (
+          currentUser.user_metadata
+            ?.username || 'unknown'
+        );
 
-      loadMessages();
-      subscribe();
+      await loadRooms();
+
+      await loadMessages();
+
+      subscribeRooms();
+
+      subscribeMessages();
 
     } else {
 
@@ -101,6 +100,8 @@ supabase.auth.onAuthStateChange(
         'Logged out';
 
       messages.innerHTML = '';
+
+      rooms.innerHTML = '';
 
       if (channel) {
         supabase.removeChannel(channel);
@@ -123,7 +124,8 @@ signupBtn.onclick = async () => {
 
       options: {
         data: {
-          username: username.value
+          username:
+            username.value
         }
       }
     });
@@ -133,9 +135,7 @@ signupBtn.onclick = async () => {
     return;
   }
 
-  alert(
-    'Signup successful'
-  );
+  alert('Signup successful');
 };
 
 /* LOGIN */
@@ -161,7 +161,121 @@ logoutBtn.onclick = async () => {
   await supabase.auth.signOut();
 };
 
-/* SEND */
+/* ROOM CREATION */
+
+createRoomBtn.onclick =
+  async () => {
+
+    if (!currentUser) {
+      alert('Login first');
+      return;
+    }
+
+    const name =
+      roomInput.value
+        .trim()
+        .toLowerCase();
+
+    if (!name) return;
+
+    const result =
+      await supabase
+        .from('rooms')
+        .insert([{ name }]);
+
+    if (result.error) {
+      alert(result.error.message);
+      return;
+    }
+
+    roomInput.value = '';
+  };
+
+/* LOAD ROOMS */
+
+async function loadRooms() {
+
+  const result =
+    await supabase
+      .from('rooms')
+      .select('*')
+      .order('name');
+
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
+
+  rooms.innerHTML = '';
+
+  result.data.forEach((room) => {
+
+    const btn =
+      document.createElement('button');
+
+    btn.className =
+      'room-btn';
+
+    if (
+      room.name === currentRoom
+    ) {
+      btn.classList.add('active');
+    }
+
+    btn.innerText =
+      '# ' + room.name;
+
+    btn.onclick = async () => {
+
+      currentRoom =
+        room.name;
+
+      chatHeader.innerText =
+        '# ' + currentRoom;
+
+      document
+        .querySelectorAll('.room-btn')
+        .forEach((b) => {
+          b.classList.remove('active');
+        });
+
+      btn.classList.add('active');
+
+      await loadMessages();
+
+      subscribeMessages();
+    };
+
+    rooms.appendChild(btn);
+  });
+}
+
+/* ROOM REALTIME */
+
+function subscribeRooms() {
+
+  supabase
+
+    .channel('rooms')
+
+    .on(
+      'postgres_changes',
+
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'rooms'
+      },
+
+      () => {
+        loadRooms();
+      }
+    )
+
+    .subscribe();
+}
+
+/* SEND MESSAGE */
 
 sendBtn.onclick =
   sendMessage;
@@ -199,8 +313,8 @@ async function sendMessage() {
           currentUser.id,
 
         username:
-          currentUser.user_metadata?.username
-          || 'unknown',
+          currentUser.user_metadata
+            ?.username || 'unknown',
 
         text,
 
@@ -213,13 +327,15 @@ async function sendMessage() {
   }
 }
 
-/* LOAD */
+/* LOAD MESSAGES */
 
 async function loadMessages() {
 
   const result =
     await supabase
+
       .from('messages')
+
       .select('*')
 
       .eq(
@@ -244,9 +360,9 @@ async function loadMessages() {
   result.data.forEach(addMessage);
 }
 
-/* REALTIME */
+/* MESSAGE REALTIME */
 
-function subscribe() {
+function subscribeMessages() {
 
   if (channel) {
     supabase.removeChannel(channel);
@@ -287,7 +403,7 @@ function subscribe() {
     });
 }
 
-/* MESSAGE UI */
+/* ADD MESSAGE */
 
 function addMessage(msg) {
 
