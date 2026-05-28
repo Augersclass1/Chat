@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +31,8 @@
     <div id="status">
       Not logged in
     </div>
+
+    <!-- AUTH -->
 
     <div class="auth">
 
@@ -64,48 +68,40 @@
 
     </div>
 
+    <!-- ROOM CREATOR -->
+
+    <div class="room-create">
+
+      <input
+        id="roomInput"
+        type="text"
+        placeholder="New room"
+      />
+
+      <button id="createRoomBtn">
+        Create
+      </button>
+
+    </div>
+
+    <!-- ROOMS -->
+
+    <div
+      id="rooms"
+      class="rooms-sidebar"
+    ></div>
+
   </aside>
 
   <!-- CHAT -->
 
   <main class="chat-container">
 
-    <div class="chat-header">
-      Multi Room Chat
-    </div>
-
-    <!-- ROOMS -->
-
-    <div class="rooms">
-
-      <button
-        class="room-btn active"
-        data-room="global"
-      >
-        # Global
-      </button>
-
-      <button
-        class="room-btn"
-        data-room="gaming"
-      >
-        # Gaming
-      </button>
-
-      <button
-        class="room-btn"
-        data-room="music"
-      >
-        # Music
-      </button>
-
-      <button
-        class="room-btn"
-        data-room="coding"
-      >
-        # Coding
-      </button>
-
+    <div
+      id="chatHeader"
+      class="chat-header"
+    >
+      # global
     </div>
 
     <!-- MESSAGES -->
